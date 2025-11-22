@@ -17,6 +17,8 @@ class LoginViewModelTest {
 
     private lateinit var viewModel: LoginViewModel
     private val testDispatcher = StandardTestDispatcher()
+    private val validEmail = "myemail@yandex.ru"
+    private val validPassword = "myPassword"
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -33,25 +35,25 @@ class LoginViewModelTest {
 
     @Test
     fun `login with empty email sets EmptyFieldsError`() = runTest {
-        viewModel.login("", "qwerty")
+        viewModel.login("", validPassword)
         assertEquals(LoginScreenState.EmptyFieldsError, viewModel.state.value)
     }
 
     @Test
     fun `login with empty password sets EmptyFieldsError`() = runTest {
-        viewModel.login("myemail@yandex.ru", "")
+        viewModel.login(validEmail, "")
         assertEquals(LoginScreenState.EmptyFieldsError, viewModel.state.value)
     }
 
     @Test
     fun `login with not valid email sets EmailValidationError`() = runTest {
-        viewModel.login("myemail", "mypassword")
+        viewModel.login("myemail", validPassword)
         assertEquals(LoginScreenState.EmailValidationError, viewModel.state.value)
     }
 
     @Test
     fun `login with valid data sets LoginScreenState`() = runTest {
-        viewModel.login("myemail@yandex.ru", "mypassword")
+        viewModel.login(validEmail, validPassword)
         testDispatcher.scheduler.runCurrent()
         assertEquals(LoginScreenState.Loading, viewModel.state.value)
     }
@@ -59,9 +61,8 @@ class LoginViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `login with valid data sets Loading then Success`() = runTest {
-        viewModel.login("myemail@yandex.ru", "mypassword")
-        testDispatcher.scheduler.runCurrent()
-        testDispatcher.scheduler.advanceTimeBy(3100)
+        viewModel.login(validEmail, validPassword)
+        testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(LoginScreenState.Success, viewModel.state.value)
     }
 }
